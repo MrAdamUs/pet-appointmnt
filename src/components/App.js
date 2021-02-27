@@ -13,18 +13,26 @@ class App extends React.Component {
       lastIndex: 0,
       orderBy: 'petName',
       orderDir: 'asc',
+      queryText: '',
       formDisplay: false,
     };
     this.deleteAppointment = this.deleteAppointment.bind(this);
     this.toggleForm = this.toggleForm.bind(this);
     this.addAppointments = this.addAppointments.bind(this);
     this.changeOrder = this.changeOrder.bind(this);
+    this.searchApt = this.searchApt.bind(this);
   }
 
   changeOrder(order, dir) {
     this.setState({
       orderBy: order,
       orderDir: dir,
+    });
+  }
+
+  searchApt(query) {
+    this.setState({
+      queryText: query,
     });
   }
 
@@ -75,16 +83,30 @@ class App extends React.Component {
       order = -1;
     }
 
-    filterdApt.sort((a, b) => {
-      if (
-        a[this.state.orderBy].toLowerCase() <
-        b[this.state.orderBy].toLowerCase()
-      ) {
-        return -1 * order;
-      } else {
-        return 1 * order;
-      }
-    });
+    filterdApt = filterdApt
+      .sort((a, b) => {
+        if (
+          a[this.state.orderBy].toLowerCase() <
+          b[this.state.orderBy].toLowerCase()
+        ) {
+          return -1 * order;
+        } else {
+          return 1 * order;
+        }
+      })
+      .filter((eachItem) => {
+        return (
+          eachItem['petName']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase()) ||
+          eachItem['ownerName']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase()) ||
+          eachItem['aptNotes']
+            .toLowerCase()
+            .includes(this.state.queryText.toLowerCase())
+        );
+      });
 
     return (
       <main className='page bg-white' id='petratings'>
@@ -101,6 +123,7 @@ class App extends React.Component {
                   orderBy={this.state.orderBy}
                   orderDir={this.state.orderDir}
                   changeOrder={this.changeOrder}
+                  searchApt={this.searchApt}
                 />
                 <ListAppointments
                   appointments={filterdApt}
